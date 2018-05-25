@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>小人移动</title>
+    <style>
+        canvas{
+            border: 1px solid #999999;
+        }
+    </style>
+</head>
+<body>
+    <canvas width="600" height="400"></canvas>
+    <p></p>
+</body>
+<script>
+    let Person =function(){
+        this.ctx =document.querySelector("canvas").getContext("2d");
+        this.src = "小人精灵图.png";
+        this.width = this.ctx.canvas.width;
+        this.height = this.ctx.canvas.height;
+        this.stepSize = 5;//步伐大小
+        this.stepX = 0;
+        this.stepY = 0;
+        this.direction = 0;//下0 左1 上3 右4 
+        this.init();
+    }
+    Person.prototype.init = function(){
+        let that = this;
+        this.loadImag(function(image){
+            that.imagewidth = image.width;
+            that.imageheight = image.height;
+            that.Personwidth = that.imagewidth/3;
+            that.Personheight = that.imageheight/4;
+            that.x0 = 0;
+            that.y0 = 0;
+            that.ctx.drawImage(image, 
+            that.Personwidth, 0, 
+            that.Personwidth, that.Personheight, 
+            that.x0, that.y0, 
+            that.Personwidth, that.Personheight);
+            that.index = 1;
+            document.onkeydown = function(e){
+                if(e.keyCode==40){//下
+                    that.direction=0;
+                    that.stepY++;
+                    that.drawit(image);
+                }
+                else if(e.keyCode==37){//左
+                    that.direction=1;
+                    that.stepX--;
+                    that.drawit(image);
+                }
+                else if(e.keyCode==39){//右
+                    that.direction=2;
+                    that.stepX++;
+                    that.drawit(image);
+                }
+                else if(e.keyCode==38){//上
+                    that.direction=3;
+                    that.stepY--;
+                    that.drawit(image);
+                }
+            }
+        })
+    }
+    Person.prototype.loadImag = function(callback){
+        let image = new Image();
+        image.onload = function(){
+            callback(image);
+        }
+        image.src = this.src;
+    }
+    Person.prototype.drawit = function(image){
+        this.index++;
+        this.ctx.clearRect(0, 0, this.width, this.height);
+        this.ctx.drawImage(image, 
+            this.index*this.Personwidth, this.direction*this.Personheight, 
+            this.Personwidth, this.Personheight, 
+            this.x0+this.stepSize*this.stepX, this.y0+this.stepSize*this.stepY, 
+            this.Personwidth, this.Personheight);
+        if(this.index>=2){
+            this.index=-1;
+        }
+        things.init(this.stepX,this.stepY,this.stepSize)
+    }
+    let Thing = function() {
+        this.ctx =document.querySelector("canvas").getContext("2d");
+        this.x0 = Math.floor(Math.random() * (this.ctx.canvas.width-10));
+        this.y0 = Math.floor(Math.random() * (this.ctx.canvas.height-10));
+        this.init();
+    }
+    Thing.prototype.init = function(personx,persony,personstep){
+        this.drawfood();
+        this.check(personx,persony,personstep);
+    }
+    Thing.prototype.drawfood = function(){
+        this.ctx.beginPath();
+        this.ctx.fillStyle = "#FFCC00";
+        this.ctx.fillRect(this.x0,this.y0,10,10);
+        this.ctx.closePath();
+    }
+    Thing.prototype.check = function(personx,persony,personstep){
+        if(this.x0<personx*personstep+25&&this.x0>personx*personstep+5){
+            if(this.y0<persony*personstep+45&&this.y0>persony*personstep+5){
+                document.querySelector("p").innerHTML=++grade;
+                this.x0 = Math.floor(Math.random() * (this.ctx.canvas.width-10));
+                this.y0 = Math.floor(Math.random() * (this.ctx.canvas.height-10));
+                this.init();
+            }
+        }
+    }
+    let grade=0;
+    document.querySelector("p").innerHTML=grade;
+    let person = new Person();
+    let things=new Thing();
+</script>
+</html>
